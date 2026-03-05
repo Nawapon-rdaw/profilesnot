@@ -1,24 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const nodemailer = require('nodemailer');
-const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
 app.use(express.static(__dirname));
 
 let otpStore = {}; // เก็บ OTP ชั่วคราว
 
-// ================= หน้าเว็บหลัก =================
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-});
-
 // ================= MAIL SETUP =================
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -26,8 +20,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // ================= REQUEST OTP =================
-app.post("/request-otp", async (req, res) => {
-
+app.post('/request-otp', async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
@@ -38,36 +31,31 @@ app.post("/request-otp", async (req, res) => {
 
     otpStore[email] = {
         code: otp,
-        expire: Date.now() + 2 * 60 * 1000
+        expire: Date.now() + 2 * 60 * 1000 // 2 นาที
     };
 
     try {
-
         await transporter.sendMail({
             from: `"OTP System" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: "รหัส OTP ของคุณ",
             html: `
-            <h2>รหัส OTP ของคุณ</h2>
-            <h1>${otp}</h1>
-            <p>รหัสนี้หมดอายุใน 2 นาที</p>
+                <h2>รหัส OTP ของคุณ</h2>
+                <h1>${otp}</h1>
+                <p>รหัสนี้หมดอายุใน 2 นาที</p>
             `
         });
 
         res.json({ message: "ส่ง OTP แล้ว" });
 
     } catch (err) {
-
         console.error(err);
         res.status(500).json({ message: "ส่งอีเมลไม่สำเร็จ" });
-
     }
-
 });
 
 // ================= VERIFY OTP =================
-app.post("/verify-otp", (req, res) => {
-
+app.post('/verify-otp', (req, res) => {
     const { email, otp } = req.body;
 
     const record = otpStore[email];
@@ -88,10 +76,9 @@ app.post("/verify-otp", (req, res) => {
     delete otpStore[email];
 
     res.json({ message: "ยืนยันสำเร็จ" });
-
 });
 
 // ================= START SERVER =================
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

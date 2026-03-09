@@ -45,10 +45,6 @@ border:1px solid rgba(255,255,255,0.2);
 outline:none;
 }
 
-input::placeholder{
-color:rgba(255,255,255,0.7);
-}
-
 button{
 width:100%;
 padding:12px;
@@ -113,7 +109,11 @@ min-height:18px;
 
 <script>
 
-emailjs.init("NDaVGjZMceU5d7xL3")
+// ===== EmailJS INIT =====
+
+(function(){
+emailjs.init("NDaVGjZMceU5d7xL3");
+})();
 
 let generatedOTP=""
 let cooldown=30
@@ -130,7 +130,7 @@ const resendBtn=document.getElementById("resendBtn")
 const msg1=document.getElementById("msg1")
 const msg2=document.getElementById("msg2")
 
-// ===== REQUEST OTP =====
+// ===== SEND OTP =====
 
 startBtn.onclick=()=>{
 
@@ -150,7 +150,10 @@ return
 }
 
 generatedOTP=Math.floor(100000 + Math.random()*900000)
+
 userEmail=email
+
+msg1.innerText="กำลังส่ง OTP..."
 
 emailjs.send(
 "service_u1sg0qg",
@@ -159,8 +162,12 @@ emailjs.send(
 to_email:userEmail,
 otp:generatedOTP,
 time:"15 minutes"
-}
-).then(()=>{
+},
+"NDaVGjZMceU5d7xL3"
+)
+.then(function(response){
+
+console.log("SUCCESS",response)
 
 msg1.innerText="ส่ง OTP ไปที่อีเมลแล้ว"
 
@@ -169,7 +176,10 @@ step2.classList.remove("hidden")
 
 startCooldown()
 
-}).catch(()=>{
+})
+.catch(function(error){
+
+console.log("EMAIL ERROR",error)
 
 msg1.innerText="ส่ง OTP ไม่สำเร็จ"
 
@@ -214,14 +224,13 @@ emailjs.send(
 to_email:userEmail,
 otp:generatedOTP,
 time:"15 minutes"
-}
-).then(()=>{
+},
+"NDaVGjZMceU5d7xL3"
+)
 
 msg2.innerText="ส่ง OTP ใหม่แล้ว"
 
 startCooldown()
-
-})
 
 }
 

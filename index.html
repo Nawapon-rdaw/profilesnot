@@ -56,16 +56,6 @@ border:none;
 border-radius:10px;
 cursor:pointer;
 font-weight:bold;
-transition:0.3s;
-}
-
-button:hover{
-transform:scale(1.03);
-}
-
-button:disabled{
-opacity:0.6;
-cursor:not-allowed;
 }
 
 .resend{
@@ -103,7 +93,7 @@ min-height:18px;
 <div id="step2" class="hidden">
 <h3>ยืนยันรหัส OTP</h3>
 
-<input type="text" id="otp" maxlength="6" inputmode="numeric" placeholder="ระบุรหัส 6 หลัก">
+<input type="text" id="otp" maxlength="6" placeholder="ระบุรหัส 6 หลัก">
 
 <button id="verifyBtn">ยืนยัน OTP</button>
 
@@ -119,6 +109,7 @@ min-height:18px;
 
 <script>
 
+let generatedOTP = ""
 let cooldown = 30
 let timer
 
@@ -132,9 +123,9 @@ const resendBtn = document.getElementById("resendBtn")
 const msg1 = document.getElementById("msg1")
 const msg2 = document.getElementById("msg2")
 
-// ================= REQUEST OTP =================
+// ===== REQUEST OTP =====
 
-startBtn.onclick = async () => {
+startBtn.onclick = () => {
 
 const email = document.getElementById("email").value.trim()
 const dob = document.getElementById("dob").value.trim()
@@ -151,76 +142,27 @@ msg1.innerText="วันเกิดไม่ถูกต้อง"
 return
 }
 
-startBtn.disabled=true
-startBtn.innerText="กำลังส่ง OTP..."
+generatedOTP = Math.floor(100000 + Math.random()*900000)
 
-try{
-
-const res = await fetch("/request-otp",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
-})
-
-const data = await res.json()
-
-if(!res.ok){
-msg1.innerText=data.message || "เกิดข้อผิดพลาด"
-startBtn.disabled=false
-startBtn.innerText="ดำเนินการต่อ"
-return
-}
+alert("OTP ของคุณคือ: " + generatedOTP)
 
 step1.classList.add("hidden")
 step2.classList.remove("hidden")
 
 startCooldown()
 
-}catch{
-
-msg1.innerText="เชื่อมต่อ Server ไม่ได้"
-startBtn.disabled=false
-startBtn.innerText="ดำเนินการต่อ"
-
 }
 
-}
+// ===== VERIFY OTP =====
 
-// ================= VERIFY OTP =================
+verifyBtn.onclick = () => {
 
-verifyBtn.onclick = async () => {
-
-const email = document.getElementById("email").value.trim()
 const otp = document.getElementById("otp").value.trim()
 
 msg2.innerText=""
 
-if(!/^\d{6}$/.test(otp)){
-msg2.innerText="OTP ต้องเป็นตัวเลข 6 หลัก"
-return
-}
-
-verifyBtn.disabled=true
-verifyBtn.innerText="กำลังตรวจสอบ..."
-
-try{
-
-const res = await fetch("/verify-otp",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email,otp})
-})
-
-const data = await res.json()
-
-if(!res.ok){
-msg2.innerText=data.message || "OTP ไม่ถูกต้อง"
-verifyBtn.disabled=false
-verifyBtn.innerText="ยืนยัน OTP"
+if(otp !== generatedOTP.toString()){
+msg2.innerText="OTP ไม่ถูกต้อง"
 return
 }
 
@@ -233,45 +175,23 @@ setTimeout(()=>{
 window.location.href="home.html"
 },1500)
 
-}catch{
-
-msg2.innerText="ไม่สามารถเชื่อมต่อ Server ได้"
-verifyBtn.disabled=false
-verifyBtn.innerText="ยืนยัน OTP"
-
 }
 
-}
+// ===== RESEND =====
 
-// ================= RESEND =================
+resendBtn.onclick = ()=>{
 
-resendBtn.onclick = async ()=>{
+generatedOTP = Math.floor(100000 + Math.random()*900000)
 
-const email = document.getElementById("email").value.trim()
-
-try{
-
-await fetch("/request-otp",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
-})
+alert("OTP ใหม่: "+generatedOTP)
 
 msg2.innerText="ส่ง OTP ใหม่แล้ว"
 
 startCooldown()
 
-}catch{
-
-msg2.innerText="ส่งไม่สำเร็จ"
-
 }
 
-}
-
-// ================= COOLDOWN =================
+// ===== COOLDOWN =====
 
 function startCooldown(){
 
@@ -306,4 +226,3 @@ resendBtn.innerText="ส่งรหัสอีกครั้ง"
 
 </body>
 </html>
-

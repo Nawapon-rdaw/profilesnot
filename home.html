@@ -337,16 +337,24 @@ document.addEventListener("DOMContentLoaded", () => {
 function loadUserEmail(){
 
 const emailElement = document.getElementById("userEmail");
-
 if(!emailElement) return;
 
-const savedEmail =
+/* 1. ลองดึงจาก URL */
+const params = new URLSearchParams(window.location.search);
+let email = params.get("email");
+
+/* 2. ถ้าไม่มีใน URL ให้ดึงจาก localStorage */
+if(!email){
+email =
 localStorage.getItem("email") ||
 localStorage.getItem("userEmail") ||
 localStorage.getItem("loginEmail");
+}
 
-if(savedEmail){
-emailElement.textContent = savedEmail;
+/* 3. ถ้าได้ email ให้บันทึกไว้ */
+if(email){
+localStorage.setItem("email",email);
+emailElement.textContent = email;
 }else{
 emailElement.textContent = "guest";
 }

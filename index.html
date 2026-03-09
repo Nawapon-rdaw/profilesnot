@@ -77,7 +77,7 @@ min-height:18px;
 <div id="step1">
 <h3>ยินดีต้อนรับ</h3>
 
-<input type="email" id="email" placeholder="กรอกอีเมลของคุณ">
+<input type="email" id="email" placeholder="กรอกอีเมล">
 <input type="text" id="dob" placeholder="วันเกิด (07/05/52)">
 
 <button id="startBtn">ดำเนินการต่อ</button>
@@ -87,14 +87,14 @@ min-height:18px;
 
 <div id="step2" class="hidden">
 
-<h3>ยืนยันรหัส OTP</h3>
+<h3>ยืนยัน OTP</h3>
 
-<input id="otp" maxlength="6" placeholder="รหัส OTP">
+<input id="otp" placeholder="รหัส OTP">
 
-<button id="verifyBtn">ยืนยัน OTP</button>
+<button id="verifyBtn">ยืนยัน</button>
 
 <button id="resendBtn" class="resend" disabled>
-ส่งรหัสอีกครั้ง (<span id="countdown">30</span>s)
+ส่งรหัสอีกครั้ง (<span id="countdown">30</span>)
 </button>
 
 <div class="msg" id="msg2"></div>
@@ -108,9 +108,9 @@ min-height:18px;
 emailjs.init("YOUR_PUBLIC_KEY")
 
 let generatedOTP=""
+let userEmail=""
 let cooldown=30
 let timer
-let userEmail=""
 
 const step1=document.getElementById("step1")
 const step2=document.getElementById("step2")
@@ -148,8 +148,8 @@ userEmail=email
 msg1.innerText="กำลังส่ง OTP..."
 
 emailjs.send(
-"YOUR_SERVICE_ID",
-"YOUR_TEMPLATE_ID",
+"service_xxxxx",
+"template_xxxxx",
 {
 to_email:userEmail,
 otp:generatedOTP
@@ -185,7 +185,7 @@ return
 }
 
 document.querySelector(".card").innerHTML=`
-<h2>ยืนยันตัวตนสำเร็จ</h2>
+<h2>ยืนยันสำเร็จ</h2>
 <p>กำลังเข้าสู่ระบบ...</p>
 `
 
@@ -202,8 +202,8 @@ resendBtn.onclick=()=>{
 generatedOTP=Math.floor(100000+Math.random()*900000)
 
 emailjs.send(
-"YOUR_SERVICE_ID",
-"YOUR_TEMPLATE_ID",
+"service_xxxxx",
+"template_xxxxx",
 {
 to_email:userEmail,
 otp:generatedOTP
@@ -216,7 +216,7 @@ startCooldown()
 
 }
 
-// COOLDOWN
+// TIMER
 
 function startCooldown(){
 

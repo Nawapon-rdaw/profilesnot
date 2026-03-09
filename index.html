@@ -1,9 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>เข้าสู่ระบบ</title>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -73,6 +76,7 @@ margin-top:8px;
 min-height:18px;
 }
 </style>
+
 </head>
 
 <body>
@@ -109,26 +113,29 @@ min-height:18px;
 
 <script>
 
-let generatedOTP = ""
-let cooldown = 30
+emailjs.init("NDaVGjZMceU5d7xL3")
+
+let generatedOTP=""
+let cooldown=30
 let timer
+let userEmail=""
 
-const step1 = document.getElementById("step1")
-const step2 = document.getElementById("step2")
+const step1=document.getElementById("step1")
+const step2=document.getElementById("step2")
 
-const startBtn = document.getElementById("startBtn")
-const verifyBtn = document.getElementById("verifyBtn")
-const resendBtn = document.getElementById("resendBtn")
+const startBtn=document.getElementById("startBtn")
+const verifyBtn=document.getElementById("verifyBtn")
+const resendBtn=document.getElementById("resendBtn")
 
-const msg1 = document.getElementById("msg1")
-const msg2 = document.getElementById("msg2")
+const msg1=document.getElementById("msg1")
+const msg2=document.getElementById("msg2")
 
 // ===== REQUEST OTP =====
 
-startBtn.onclick = () => {
+startBtn.onclick=()=>{
 
-const email = document.getElementById("email").value.trim()
-const dob = document.getElementById("dob").value.trim()
+const email=document.getElementById("email").value.trim()
+const dob=document.getElementById("dob").value.trim()
 
 msg1.innerText=""
 
@@ -142,26 +149,44 @@ msg1.innerText="วันเกิดไม่ถูกต้อง"
 return
 }
 
-generatedOTP = Math.floor(100000 + Math.random()*900000)
+generatedOTP=Math.floor(100000 + Math.random()*900000)
 
-alert("OTP ของคุณคือ: " + generatedOTP)
+userEmail=email
+
+emailjs.send(
+"service_u1sg0qg",
+"mm3s3iz",
+{
+to_email:userEmail,
+otp:generatedOTP,
+time:"15 minutes"
+}
+).then(()=>{
+
+msg1.innerText="ส่ง OTP ไปที่อีเมลแล้ว"
 
 step1.classList.add("hidden")
 step2.classList.remove("hidden")
 
 startCooldown()
 
+}).catch(()=>{
+
+msg1.innerText="ส่ง OTP ไม่สำเร็จ"
+
+})
+
 }
 
 // ===== VERIFY OTP =====
 
-verifyBtn.onclick = () => {
+verifyBtn.onclick=()=>{
 
-const otp = document.getElementById("otp").value.trim()
+const otp=document.getElementById("otp").value.trim()
 
 msg2.innerText=""
 
-if(otp !== generatedOTP.toString()){
+if(otp!==generatedOTP.toString()){
 msg2.innerText="OTP ไม่ถูกต้อง"
 return
 }
@@ -177,17 +202,27 @@ window.location.href="home.html"
 
 }
 
-// ===== RESEND =====
+// ===== RESEND OTP =====
 
-resendBtn.onclick = ()=>{
+resendBtn.onclick=()=>{
 
-generatedOTP = Math.floor(100000 + Math.random()*900000)
+generatedOTP=Math.floor(100000 + Math.random()*900000)
 
-alert("OTP ใหม่: "+generatedOTP)
+emailjs.send(
+"service_u1sg0qg",
+"mm3s3iz",
+{
+to_email:userEmail,
+otp:generatedOTP,
+time:"15 minutes"
+}
+).then(()=>{
 
 msg2.innerText="ส่ง OTP ใหม่แล้ว"
 
 startCooldown()
+
+})
 
 }
 
@@ -206,13 +241,11 @@ clearInterval(timer)
 timer=setInterval(()=>{
 
 cooldown--
-
 countdown.innerText=cooldown
 
 if(cooldown<=0){
 
 clearInterval(timer)
-
 resendBtn.disabled=false
 resendBtn.innerText="ส่งรหัสอีกครั้ง"
 

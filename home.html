@@ -197,14 +197,40 @@ audio {display: none;}
     border: none;
     border-radius: 24px;
     cursor: pointer;
+    
 }
 .chat-input button:hover { background: #1e88e5; }
+          /* === FIX EMAIL DISPLAY === */
+#topEmail{
+font-size:14px;
+font-weight:600;
+color:#555;
+margin-bottom:10px;
+opacity:0;
+transform:translateY(-10px);
+animation:emailFade 1s ease forwards;
+}
+
+#userEmail{
+color:#3399ff;
+font-weight:700;
+}
+
+@keyframes emailFade{
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
 </style>
+
 </head>
 <body>
+
 <div class="loader"><span></span><span></span><span></span></div>
 <div class="container">
 <div class="left-section">
+    <div id="topEmail">📧 Email: <span id="userEmail">-</span></div>
     <div class="title">𝖆𝖇𝖔𝖚𝖙 𝖓𝖔𝖙</div>
 
     <div class="glass-box">
@@ -307,32 +333,28 @@ audio {display: none;}
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    function generateCalendar(){
-        const daysContainer = document.getElementById("days");
-        const monthYear = document.getElementById("monthYear");
-        const date = new Date();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-        const today = date.getDate();
-        const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
-        const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-        monthYear.textContent = months[month] + " " + year;
-        daysContainer.innerHTML = "";
-        for(let i = 0; i < firstDay; i++) daysContainer.innerHTML += "<div></div>";
-        for(let i = 1; i <= lastDate; i++){
-            daysContainer.innerHTML += i === today ? `<div class="today">${i}</div>` : `<div>${i}</div>`;
-        }
-    }
-    generateCalendar();
 
-    function updateTime() {
-        const now = new Date();
-        document.getElementById("currentTime").textContent = now.toLocaleTimeString('th-TH', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
-        document.getElementById("currentDate").textContent = now.toLocaleDateString('en-US', {day:'numeric', month:'long', year:'numeric'});
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
+function loadUserEmail(){
+
+const emailElement = document.getElementById("userEmail");
+
+if(!emailElement) return;
+
+const savedEmail =
+localStorage.getItem("email") ||
+localStorage.getItem("userEmail") ||
+localStorage.getItem("loginEmail");
+
+if(savedEmail){
+emailElement.textContent = savedEmail;
+}else{
+emailElement.textContent = "guest";
+}
+
+}
+
+/* เพิ่มบรรทัดนี้ */
+loadUserEmail();
 
     const audio = document.getElementById("audioPlayer");
     const playBtn = document.getElementById("playBtn");
@@ -403,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
     audio.addEventListener("loadedmetadata", updateSongTime);
     audio.addEventListener("ended", () => {
         let idx = (currentTrack + 1) % playlist.length;
-        loadTrack(idx);
+        loadTrack(idx); 
         audio.currentTime = 0;
         audio.play().then(() => { playBtn.textContent = "⏸"; });
     });
@@ -523,6 +545,82 @@ document.addEventListener("DOMContentLoaded", () => {
         chatInput.value = '';
         botReply(text);
     }
+    /* ===== ระบบเวลา ===== */
+
+function updateClock(){
+
+const now = new Date();
+
+const time = now.toLocaleTimeString('th-TH',{
+hour:'2-digit',
+minute:'2-digit',
+second:'2-digit'
+});
+
+const date = now.toLocaleDateString('th-TH',{
+year:'numeric',
+month:'long',
+day:'numeric'
+});
+
+document.getElementById("currentTime").textContent = time;
+document.getElementById("currentDate").textContent = date;
+
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+
+/* ===== ระบบปฏิทิน ===== */
+
+function generateCalendar(){
+
+const daysContainer = document.getElementById("days");
+const monthYear = document.getElementById("monthYear");
+
+const now = new Date();
+
+const year = now.getFullYear();
+const month = now.getMonth();
+const today = now.getDate();
+
+const months = [
+"มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+"กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+];
+
+monthYear.textContent = months[month] + " " + year;
+
+daysContainer.innerHTML = "";
+
+const firstDay = new Date(year,month,1).getDay();
+const lastDate = new Date(year,month+1,0).getDate();
+
+/* เว้นช่องก่อนวันแรก */
+for(let i=0;i<firstDay;i++){
+const empty = document.createElement("div");
+daysContainer.appendChild(empty);
+}
+
+/* สร้างวัน */
+for(let d=1; d<=lastDate; d++){
+
+const day = document.createElement("div");
+day.textContent = d;
+
+if(d === today){
+day.classList.add("today");
+}
+
+daysContainer.appendChild(day);
+
+}
+
+}
+
+generateCalendar();
 });
 </script>
 </body>
